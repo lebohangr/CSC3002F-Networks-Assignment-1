@@ -1,3 +1,8 @@
+/***
+ * Author: Lebo Ramachela - RMCLEB001
+ * Sample code acquired from @johnscanlon (daniweb.com)
+ */
+
 import java.io.*;  // Imported because we need the InputStream and OuputStream classes
 import java.net.*; // Imported because the Socket class is needed
 
@@ -117,11 +122,11 @@ class ReceiverThread extends Thread {
 
             // Set up a DatagramPacket to receive the data into
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            System.out.println("I am in the reader!");
+            //System.out.println("I am in the reader!");
             try {
                 // Receive a packet from the server (blocks until the packets are received)
                 udpClientSocket.receive(receivePacket);
-                System.out.println("Am i receiving?");
+               // System.out.println("Am i receiving?");
                 // Extract the reply from the DatagramPacket
                 String serverReply =  new String(receivePacket.getData(), 0, receivePacket.getLength());
 

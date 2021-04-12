@@ -1,3 +1,7 @@
+/***
+ * Author: Lebo Ramachela - RMCLEB001
+ * Sample code acquired from @johnscanlon (daniweb.com)
+ */
 import java.net.*; // Imported because the Socket class is needed
 import java.util.HashSet;
 
