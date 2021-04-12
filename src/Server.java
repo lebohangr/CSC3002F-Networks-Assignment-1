@@ -64,7 +64,7 @@ public class Server {
             byte[] sendData  = new byte[1024];
 
             // Assign the message to the send buffer
-            sendData = returnMessage.getBytes();
+            sendData = clientMessage.getBytes();
 
             for(Integer port : portSet)
             {
