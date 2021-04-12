@@ -82,7 +82,7 @@ class SenderThread extends Thread {
             String paddedUsername = String.format("%-10s", username);
 
 
-            data = (username + " joined the chat").getBytes();
+            data = ("S"+username + " joined the chat").getBytes();
             DatagramPacket blankPacket = new DatagramPacket(data,data.length , serverIPAddress, serverport);
             udpClientSocket.send(blankPacket);
 
@@ -110,7 +110,7 @@ class SenderThread extends Thread {
                 String checksum = getCRC32Checksum(bytes);
 
                 // Put this message into our empty buffer/array of bytes
-                sendData = (checksum + paddedUsername + clientMessage).getBytes();
+                sendData = ("C"+checksum + paddedUsername + clientMessage).getBytes();
 
                 // Create a DatagramPacket with the data, IP address and port number
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, serverIPAddress, serverport);
@@ -163,32 +163,36 @@ class ReceiverThread extends Thread {
             try {
                 // Receive a packet from the server (blocks until the packets are received)
                 udpClientSocket.receive(receivePacket);
-                //C- client message, R- server response, A - user authentication, E - checksum
+
+                //have the client interpret the packet differently depending on the type of data received
+                //C- client message, S- server response, A - user authentication, E - checksum
+                switch (new String(receivePacket.getData(), 0, 1)){
+                    case "C":
+                        // Extract the reply from the DatagramPacket
+                        String checksum = new String(receivePacket.getData(), 1, 8);
+                        String username2 = new String(receivePacket.getData(), 9, 10);
+                        String serverReply = new String(receivePacket.getData(), 19, receivePacket.getLength() - 19);
+
+                        //remove trailing whitespace from username
+                        username2 = username2.trim();
+
+                        //perform checksum on packet received
+                        byte[] bytes = serverReply.getBytes();
+                        String checksum2 = getCRC32Checksum(bytes);
+
+                        // print to the screen if checksum succeeds
+                        if (checksum.equals(checksum2)) {
+                            System.out.println("Checksum succeeded!");
+                            System.out.println(username2 + ": " + serverReply);
+                        }
+                        break;
 
 
-                if (msgsReceived > 0) {
-                    // Extract the reply from the DatagramPacket
-                    String checksum = new String(receivePacket.getData(), 0, 8);
-                    String username2 = new String(receivePacket.getData(), 8, 10);
-                    String serverReply = new String(receivePacket.getData(), 18, receivePacket.getLength() - 18);
-
-                    username2 = username2.trim();
-
-                    //perform checksum on packet received
-                    byte[] bytes = serverReply.getBytes();
-                    String checksum2 = getCRC32Checksum(bytes);
-
-                    // print to the screen if checksum succeeds
-                    if (checksum.equals(checksum2)) {
-                        System.out.println("Checksum succeeded!");
-                        System.out.println(username2 + ": " + serverReply);
-                    }
+                    case "S":
+                        serverReply = new String(receivePacket.getData(), 1, receivePacket.getLength());
+                        System.out.println(serverReply);
+                        break;
                 }
-                else{
-                    String serverReply = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    System.out.println(serverReply);
-                }
-                msgsReceived++;
                 Thread.yield();
             }
             catch (IOException ex) {
