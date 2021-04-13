@@ -82,12 +82,9 @@ class SenderThread extends Thread {
             String paddedUsername = String.format("%-10s", username);
 
 
-            data = ("S"+username + " joined the chat").getBytes();
+            data = ("S"+username + " joined the chat...").getBytes(); //should be done by server
             DatagramPacket blankPacket = new DatagramPacket(data,data.length , serverIPAddress, serverport);
             udpClientSocket.send(blankPacket);
-
-
-
 
             // Create input stream
             BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
@@ -145,7 +142,7 @@ class ReceiverThread extends Thread {
     public static String getCRC32Checksum(byte[] bytes) {
         Checksum crc32 = new CRC32();
         crc32.update(bytes, 0, bytes.length);
-        //  return crc32.getValue();
+        //format checksum value as hexadecimal
         return String.format(Locale.US, "%08X", crc32.getValue());
     }
 
@@ -165,7 +162,7 @@ class ReceiverThread extends Thread {
                 udpClientSocket.receive(receivePacket);
 
                 //have the client interpret the packet differently depending on the type of data received
-                //C- client message, S- server response, A - user authentication, E - checksum
+                //C- client message, S- server response, A - user authentication
                 switch (new String(receivePacket.getData(), 0, 1)){
                     case "C":
                         // Extract the reply from the DatagramPacket
@@ -184,12 +181,38 @@ class ReceiverThread extends Thread {
                         if (checksum.equals(checksum2)) {
                             System.out.println("Checksum succeeded!");
                             System.out.println(username2 + ": " + serverReply);
+
+                            //send confirmation to other client through server
+                            byte[] confirmData = new byte[1024];
+
+                            // Put this message into our empty buffer/array of bytes
+                            confirmData = ("S" + "[Message Received]").getBytes();
+
+                            //Send confirmation to other client
+                            InetAddress address = receivePacket.getAddress();
+                            int port = receivePacket.getPort();
+                            receivePacket = new DatagramPacket(confirmData, confirmData.length, address, port);
+                            udpClientSocket.send(receivePacket);
+                        }
+                        else{
+                            //dont display message to recipient
+
+                            //send confirmation of failure to other client through server
+                            byte[] confirmData = new byte[1024];
+
+                            // Put this message into our empty buffer/array of bytes
+                            confirmData = ("S" + "Checksum failed!\n[Message not delivered]").getBytes();
+
+                            //Send confirmation to other client
+                            InetAddress address = receivePacket.getAddress();
+                            int port = receivePacket.getPort();
+                            receivePacket = new DatagramPacket(confirmData, confirmData.length, address, port);
+                            udpClientSocket.send(receivePacket);
                         }
                         break;
 
-
                     case "S":
-                        serverReply = new String(receivePacket.getData(), 1, receivePacket.getLength());
+                        serverReply = new String(receivePacket.getData(), 1, receivePacket.getLength()-1);
                         System.out.println(serverReply);
                         break;
                 }
