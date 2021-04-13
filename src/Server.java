@@ -40,7 +40,7 @@ public class Server {
             udpServerSocket.receive(receivePacket);
 
             // Extract the message from the packet and make it into a string, then trim off any end characters
-            String clientMessage = (new String(receivePacket.getData())).trim();
+            String clientMessage = (new String(receivePacket.getData(),0,receivePacket.getLength())).trim();
 
             // Print some status messages
             System.out.println("Client Connected - Socket Address: " + receivePacket.getSocketAddress());
@@ -64,11 +64,11 @@ public class Server {
             byte[] sendData  = new byte[1024];
 
             // Assign the message to the send buffer
-            sendData = returnMessage.getBytes();
+            sendData = clientMessage.getBytes();
 
             for(Integer port : portSet)
             {
-                System.out.println(port != clientport);
+                System.out.println(port);
                 if(port != clientport)
                 {
                     // Create a DatagramPacket to send, using the buffer, the clients IP address, and the clients port
