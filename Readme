@@ -1,6 +1,6 @@
 
 //Open three terminals, 2 for the client and one for the server
-
+//run the server first, then your clients
 make -> compiles
 make runServer -> run Server
 make runClient -> run Client
