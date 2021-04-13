@@ -3,7 +3,7 @@
 
 make -> compiles
 make runServer -> runs Server
-make runClient x2 -> runs Clients
+make runClient -> runs Client
 make clean -> cleans bin folder
 make runDoc -> generates javadoc
 make doc_clean -> cleans the doc folder
