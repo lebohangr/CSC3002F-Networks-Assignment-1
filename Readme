@@ -1,9 +1,9 @@
 
-//Open two terminals, one for the client and one for the server
+//Open three terminals, 2 for the client and one for the server
 
 make -> compiles
-make runClient -> run Client
-make runServer -> run Server
+make runServer -> runs Server
+make runClient x2 -> runs Clients
 make clean -> cleans bin folder
 make runDoc -> generates javadoc
 make doc_clean -> cleans the doc folder
